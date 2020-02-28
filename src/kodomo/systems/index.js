@@ -1,15 +1,19 @@
 import { EventEmitter } from "../../js/EventEmitter";
 
 export default class System extends EventEmitter {
-	setup()
-	cleanup()
-	beforeUpdate() {
+	constructor() {
+		super();
+		this.init();
+	}
+	init() {}
+	cleanup() {}
+	update(entities = {}) {
+		return this.onUpdate(entities);
+	}
+	onUpdate(entities = {}) {
 		return this;
 	}
-	update(entities = []) {
-		return this;
-	}
-	afterUpdate() {
-		return this;
+	destroy() {
+		this.cleanup();
 	}
 }

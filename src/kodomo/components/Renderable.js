@@ -1,9 +1,13 @@
 import Component from ".";
 
 export default class RenderableComponent extends Component {
-	setup() {
-		return {
-			render: true,
-		}
-	}
+    setup(render = true) {
+        this.render = render;
+    }
+    static stateTypes = {
+        render: {
+            type: "boolean",
+            editable: true
+        }
+    };
 }

@@ -1,39 +1,31 @@
 import System from ".";
-import InteractionComponent from "../components/Interaction";
 
 export default class InteractionSystem extends System {
-	setup() {
-		window.addEventListener("touchstart", this.onTouchStart);
-		window.addEventListener("touchmove", this.onTouchMove);
-		window.addEventListener("touchend", this.onTouchEnd);
+	constructor(viewport) {
+		super();
+		this.viewport = viewport;
 	}
-	update(entities) {
-		entities
-		.filter(e => e.hasComponent(InteractionComponent))
-		.forEach(entity => {
-			// do some hit and gesture testing;
-		})
-	}
-	cleanup() {
-		window.removeEventListener("touchstart", this.onTouchStart);
-		window.removeEventListener("touchmove", this.onTouchMove);
-		window.removeEventListener("touchend", this.onTouchEnd);
-	}
-
-	onTouchStart({ targetTouches = [] }) {
-		if (targetTouches[0]) {
-			const { clientX, clientY } = targetTouches[0];
-			this.startX = clientX;
-			this.startY = clientY;
+	onUpdate(entities = {}) {
+		const filteredEntities = Object.values(entities).filter(entity =>
+			entity.hasComponent("interaction")
+		);
+		if (
+			filteredEntities.some(
+				entity => entity.getComponent("interaction").state.active
+			)
+		) {
+			this.viewport.on("pointerup", () => {
+				filteredEntities.forEach(
+					e => (e.getComponent("interaction").state.active = false)
+				);
+			});
+			if (!this.viewport.plugins.plugins.drag.paused) {
+				this.viewport.plugins.plugins.drag.paused = true;
+			}
+		} else {
+			if (this.viewport.plugins.plugins.drag.paused) {
+				this.viewport.plugins.plugins.drag.paused = false;
+			}
 		}
-	}
-	onTouchMove({ targetTouches = [] }) {
-		if (targetTouches[0]) {
-			const { clientX, clientY } = targetTouches[0];
-			this.x = clientX;
-			this.y = clientY;
-		}
-	}
-	onTouchEnd() {
 	}
 }

@@ -1,16 +1,14 @@
 import { uuid } from "./utils";
+import { ECS } from "../kodomo/core";
 
 function Sit(target) {
-	// play run animation 
-	// add force towards 
+	// play run animation
+	// add force towards
 }
 
-function Eat(target) {
+function Eat(target) {}
 
-}
-
-const actions = {
-}
+const actions = {};
 const apple = {
 	actions: {
 		eat: {
@@ -22,15 +20,16 @@ const apple = {
 			target: this
 		}
 	}
-}
+};
 
 class CollisionSystem {
 	update(entities = {}, componentEntityMap = {}) {
 		// test for collision on entities with collidable component
 		// if they have collided, run the collision check
-		for (let idA in componentEntityMap['Collidable']) {
-			for (let idB in componentEntityMap['Collidable']) {
-				this.collides(idA, idB) && this.onCollision(entities[idA], entities[idB])
+		for (let idA in componentEntityMap["Collidable"]) {
+			for (let idB in componentEntityMap["Collidable"]) {
+				this.collides(idA, idB) &&
+					this.onCollision(entities[idA], entities[idB]);
 			}
 		}
 	}
@@ -42,39 +41,32 @@ class CollisionSystem {
 }
 
 class UISystem {
-	showActions(entity) {
-
-	}
-	hide(entity) {
-
-	}
-	show(entity) {
-
-	}
-	onTap(action) {
-
-	}
+	showActions(entity) {}
+	hide(entity) {}
+	show(entity) {}
+	onTap(action) {}
 }
-
 
 const action = {
 	function: Eat
-}
+};
 
 function ActionsComponent() {
-	this.actions = [
-	]
+	this.actions = [];
 }
 
-entity.addComponent(new ActionsComponent([
-	{
-		action: "Sit",
-		usableBy: ["CharacterComponent", "PlayerComponent"]
-	},
-	{
-		action: "Eat",
-		usableBy: ["CharacterComponent", "AnimalComponent"]
-	},]))
+entity.addComponent(
+	new ActionsComponent([
+		{
+			action: "Sit",
+			usableBy: ["CharacterComponent", "PlayerComponent"]
+		},
+		{
+			action: "Eat",
+			usableBy: ["CharacterComponent", "AnimalComponent"]
+		}
+	])
+);
 
 function SittableComponent() {
 	this.action = "Sit"; // method on ActionSystem that has the logic for said action
@@ -95,7 +87,7 @@ class PlayerActionSystem {
 	}
 	update(playerEntity) {
 		if (!playerEntity.getComponent("BusyComponent").busy) {
-			this.commitAction(playerEntity)
+			this.commitAction(playerEntity);
 		}
 	}
 	sit(character, target) {
@@ -104,19 +96,55 @@ class PlayerActionSystem {
 			character.navigateTo(position).then(() => character.sit());
 		}
 	}
-	eat() {
-
-	}
-	hold() {
-
-	}
-	talk() {
-
-	}
-	lay() {
-
-	}
-	sleep() {
-
-	}
+	eat() {}
+	hold() {}
+	talk() {}
+	lay() {}
+	sleep() {}
 }
+
+// can be put on a chair, defines the action to trigger
+function Actable(action) {
+	this.actableOn = action;
+	return this;
+}
+
+// can be put on a chair, defines the action
+function ActionComponent(action) {
+	this.perform = action;
+	return this;
+}
+
+class ActionsSystem {
+	perform(entity, actor) {
+		if (entity.hasComponents(["actable"])) {
+			ActionsSystem.actions[entity.components.action.perform](
+				entity,
+				actor
+			);
+		}
+	}
+	static actions = {
+		sit,
+		run,
+		eat,
+		hold,
+		punch: (actor, target) => {}
+	};
+}
+
+function AssetComponent(url) {
+	this.url = url;
+	return this;
+}
+
+// When editing mode is on
+entities.forEach(e => {
+	e.setInteractive();
+	e.on(
+		"interactive",
+		() => ECS.setActiveEntity() /* logic for pull and drag and move */
+	);
+});
+
+// When play-mode
